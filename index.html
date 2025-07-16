@@ -80,6 +80,21 @@
             width: 0%;
         }
 
+        /* Nuevo estilo para información de promotora */
+        .promoter-info {
+            background: rgba(255,255,255,0.15);
+            padding: 10px 15px;
+            border-radius: 10px;
+            margin-bottom: 15px;
+            border-left: 4px solid #8fd14e;
+        }
+
+        .promoter-info p {
+            margin: 0;
+            font-size: 0.95em;
+            opacity: 0.9;
+        }
+
         .question-container {
             padding: 40px;
             display: none;
@@ -335,6 +350,8 @@
             font-size: 0.9em;
             color: #666;
         }
+
+        @media (max-width: 768px) {
             .quiz-container {
                 margin: 10px;
             }
@@ -372,6 +389,10 @@
             <div class="logo">🎓 TECMILENIO</div>
             <h1>🎯 ENCUENTRA TU MAESTRÍA PERFECTA</h1>
             <p>5 preguntas simples = Tu programa ideal + Apoyo especial</p>
+            <!-- Nueva sección de información de promotora -->
+            <div class="promoter-info" id="promoterInfo" style="display: none;">
+                <p><strong>👩‍💼 Tu asesora personal:</strong> <span id="promoterName"></span></p>
+            </div>
             <div class="progress-bar">
                 <div class="progress-fill" id="progressFill"></div>
             </div>
@@ -580,7 +601,7 @@
                 <h3>🎁 ¡Reclama tu Apoyo Especial!</h3>
                 <p>Tienes acceso a beneficio especial en colegiatura, llamada personalizada con asesor académico e información exclusiva sobre becas.</p>
                 <p><strong>Tu información ya está lista para ser enviada automáticamente.</strong></p>
-                <button class="cta-button">
+                <button class="cta-button" id="whatsappButton">
                     📲 Contactar por WhatsApp
                 </button>
             </div>
@@ -594,12 +615,39 @@
     </div>
 
     <script>
-        let currentQuestion = 0; // Cambiar a 0 para empezar con el formulario
+        // ======= CONFIGURACIÓN DE PROMOTORAS =======
+        const promoters = {
+            'karla': {
+                name: 'Karla Vargas',
+                whatsapp: '+525615396047',
+                color: '#e91e63'
+            },
+            'leticia': {
+                name: 'Leticia Ramírez',
+                whatsapp: '+525581577465',
+                color: '#2196f3'
+            },
+            'diana': {
+                name: 'Diana Domínguez',
+                whatsapp: '+525644148415',
+                color: '#4caf50'
+            },
+            'thania': {
+                name: 'Thania Carrasco',
+                whatsapp: '+525643686430',
+                color: '#ff9800'
+            }
+        };
+
+        // ======= VARIABLES GLOBALES =======
+        let currentQuestion = 0;
         const totalQuestions = 5;
         let answers = {};
         let userData = {};
+        let promoterRef = '';
+        let promoterData = null;
         
-        // Datos de los resultados
+        // ======= DATOS DE RESULTADOS =======
         const results = {
             A: {
                 icon: "🚀",
@@ -718,7 +766,57 @@
             }
         };
 
-        // Función para validar el formulario
+        // ======= INICIALIZACIÓN =======
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeQuiz();
+            setupEventListeners();
+        });
+
+        function initializeQuiz() {
+            // Debug: Imprimir URL completa
+            console.log('🔍 URL actual:', window.location.href);
+            
+            // Obtener parámetro de promotora desde URL
+            const urlParams = new URLSearchParams(window.location.search);
+            promoterRef = urlParams.get('ref') || 'default';
+            
+            // Debug: Mostrar parámetro detectado
+            console.log('🔍 Parámetro ref detectado:', promoterRef);
+            console.log('🔍 Promotoras disponibles:', Object.keys(promoters));
+            
+            // Configurar información de promotora
+            if (promoters[promoterRef]) {
+                promoterData = promoters[promoterRef];
+                
+                // Mostrar información de promotora
+                const promoterInfo = document.getElementById('promoterInfo');
+                const promoterName = document.getElementById('promoterName');
+                
+                promoterName.textContent = promoterData.name;
+                promoterInfo.style.display = 'block';
+                promoterInfo.style.borderLeftColor = promoterData.color;
+                
+                console.log(`✅ Quiz configurado para promotora: ${promoterData.name}`);
+                console.log(`📱 WhatsApp: ${promoterData.whatsapp}`);
+            } else {
+                console.log('⚠️ No se detectó promotora específica');
+                console.log('⚠️ promoterRef:', promoterRef);
+                console.log('⚠️ Usando configuración por defecto');
+            }
+            
+            // Inicializar progreso
+            updateProgress();
+        }
+
+        function setupEventListeners() {
+            // Event listeners para las opciones
+            const options = document.querySelectorAll('.option');
+            options.forEach(option => {
+                option.addEventListener('click', handleOptionClick);
+            });
+        }
+
+        // ======= VALIDACIÓN DEL FORMULARIO =======
         function validateForm() {
             const fullName = document.getElementById('fullName').value.trim();
             const phone = document.getElementById('phone').value.trim();
@@ -758,13 +856,16 @@
                 phone: phone,
                 email: email,
                 gpa: parseFloat(gpa),
-                company: company
+                company: company,
+                promoter: promoterRef,
+                promoterName: promoterData ? promoterData.name : 'Sin asignar',
+                timestamp: new Date().toISOString()
             };
             
             return true;
         }
 
-        // Función para manejar la selección de opciones
+        // ======= MANEJO DE SELECCIÓN DE OPCIONES =======
         function handleOptionClick(event) {
             const questionContainer = event.target.closest('.question-container');
             const options = questionContainer.querySelectorAll('.option');
@@ -783,7 +884,7 @@
             document.getElementById('nextBtn').disabled = false;
         }
 
-        // Función para ir a la siguiente pregunta
+        // ======= NAVEGACIÓN =======
         function nextQuestion() {
             // Si estamos en el formulario (currentQuestion = 0)
             if (currentQuestion === 0) {
@@ -835,7 +936,6 @@
             }
         }
 
-        // Función para ir a la pregunta anterior
         function previousQuestion() {
             if (currentQuestion > 1) {
                 // Ocultar pregunta actual
@@ -870,13 +970,12 @@
             }
         }
 
-        // Función para actualizar la barra de progreso
         function updateProgress() {
             const progress = (currentQuestion / totalQuestions) * 100;
             document.getElementById('progressFill').style.width = progress + '%';
         }
 
-        // Función para mostrar resultados
+        // ======= RESULTADOS =======
         function showResults() {
             // Ocultar pregunta actual
             document.getElementById('question' + currentQuestion).classList.remove('active');
@@ -886,7 +985,7 @@
             const result = results[resultType];
             
             // Enviar datos a Google Sheets
-            sendToGoogleSheets(userData, result);
+            sendToGoogleSheets(userData, result, resultType);
             
             // Mostrar resultado
             displayResult(resultType);
@@ -901,7 +1000,6 @@
             document.getElementById('progressFill').style.width = '100%';
         }
 
-        // Función para calcular el resultado
         function calculateResult() {
             const counts = { A: 0, B: 0, C: 0, D: 0, E: 0, F: 0 };
             
@@ -923,10 +1021,12 @@
             return result;
         }
 
-        // Función para enviar datos a Google Sheets
-        async function sendToGoogleSheets(userData, result) {
+        // ======= ENVÍO DE DATOS =======
+        async function sendToGoogleSheets(userData, result, resultType) {
             const params = new URLSearchParams();
             params.append('timestamp', new Date().toLocaleString('es-MX'));
+            params.append('promoter', userData.promoterName);
+            params.append('promoterRef', promoterRef);
             params.append('fullName', userData.fullName);
             params.append('phone', userData.phone);
             params.append('email', userData.email);
@@ -934,6 +1034,7 @@
             params.append('company', userData.company);
             params.append('result', result.title);
             params.append('resultType', result.subtitle);
+            params.append('answers', JSON.stringify(answers));
             
             const url = 'https://script.google.com/macros/s/AKfycbyeODcA1mRook5ZQQ7Jckc-yocgHQ9zJ6q2tfhDvY3_PoG8tYQFTzT0B_eU0bde99_5/exec?' + params.toString();
             
@@ -942,12 +1043,13 @@
                 const img = new Image();
                 img.src = url;
                 console.log('✅ Datos enviados correctamente a Google Sheets');
+                console.log('📊 Promotora:', userData.promoterName);
+                console.log('👤 Lead:', userData.fullName);
             } catch (error) {
                 console.log('⚠️ Error al enviar datos, pero esto es normal en algunos navegadores');
             }
         }
 
-        // Función para mostrar el resultado
         function displayResult(resultType) {
             const result = results[resultType];
             
@@ -962,6 +1064,7 @@
                     <p><strong>Empresa:</strong> ${userData.company}</p>
                     <p><strong>Promedio:</strong> ${userData.gpa}/10</p>
                     <p><strong>Email:</strong> ${userData.email}</p>
+                    ${promoterData ? `<p><strong>Asesora asignada:</strong> ${promoterData.name}</p>` : ''}
                 </div>
                 <h3 style="color: #2d6b5c; margin-bottom: 15px;">🎯 Programa Recomendado:</h3>
                 <p style="font-size: 1.2em; margin-bottom: 20px;"><strong>${result.subtitle}</strong></p>
@@ -977,25 +1080,32 @@
             
             document.getElementById('resultDetails').innerHTML = detailsHTML;
             
-            // Personalizar mensaje de WhatsApp
-            const whatsappMessage = `¡Hola! Soy *${userData.fullName}*. Completé el test de Tecmilenio y mi resultado fue: *${result.title}*. ¿Podrías darme información sobre el descuento y el proceso de admisión?`;
-            
-            const whatsappButton = document.querySelector('.cta-button');
-            whatsappButton.onclick = function() {
-                window.open(`https://wa.me/5511958790?text=${encodeURIComponent(whatsappMessage)}`, '_blank');
-            };
+            // Configurar botón de WhatsApp
+            setupWhatsAppButton();
         }
 
-        // Agregar event listeners a todas las opciones
-        document.addEventListener('DOMContentLoaded', function() {
-            const options = document.querySelectorAll('.option');
-            options.forEach(option => {
-                option.addEventListener('click', handleOptionClick);
-            });
+        function setupWhatsAppButton() {
+            const whatsappButton = document.getElementById('whatsappButton');
             
-            // Inicializar progreso
-            updateProgress();
-        });
+            // Configurar mensaje personalizado
+            let whatsappMessage;
+            let whatsappNumber;
+            
+            if (promoterData) {
+                whatsappMessage = `¡Hola ${promoterData.name}! Soy *${userData.fullName}*. Completé el test de Tecmilenio y mi resultado fue: *${results[calculateResult()].title}*. ¿Podrías darme información sobre el descuento y el proceso de admisión?`;
+                whatsappNumber = promoterData.whatsapp;
+            } else {
+                // Número por defecto si no hay promotora asignada
+                whatsappMessage = `¡Hola! Soy *${userData.fullName}*. Completé el test de Tecmilenio y mi resultado fue: *${results[calculateResult()].title}*. ¿Podrían darme información sobre el descuento y el proceso de admisión?`;
+                whatsappNumber = '+525511958790'; // Tu número por defecto
+            }
+            
+            whatsappButton.onclick = function() {
+                const finalUrl = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(whatsappMessage)}`;
+                console.log('📱 Redirigiendo a WhatsApp:', promoterData ? promoterData.name : 'Número por defecto');
+                window.open(finalUrl, '_blank');
+            };
+        }
     </script>
 </body>
 </html>
