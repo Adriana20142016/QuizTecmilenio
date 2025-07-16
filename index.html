@@ -1,0 +1,1001 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test TecMilenio - Encuentra tu Maestría Perfecta</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #1e4a3e 0%, #2d6b5c 100%);
+            min-height: 100vh;
+            color: #333;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .quiz-container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 15px 40px rgba(0,0,0,0.1);
+            width: 100%;
+            max-width: 800px;
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #2d6b5c 0%, #4a9f8a 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+            position: relative;
+        }
+
+        .logo {
+            width: 200px;
+            height: 60px;
+            margin: 0 auto 20px;
+            background: white;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            color: #2d6b5c;
+            font-size: 18px;
+        }
+
+        .header h1 {
+            font-size: 2.2em;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 6px;
+            background: rgba(255,255,255,0.2);
+            border-radius: 3px;
+            margin-top: 20px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: #8fd14e;
+            border-radius: 3px;
+            transition: width 0.3s ease;
+            width: 0%;
+        }
+
+        .question-container {
+            padding: 40px;
+            display: none;
+        }
+
+        .question-container.active {
+            display: block;
+        }
+
+        .question-number {
+            color: #2d6b5c;
+            font-weight: bold;
+            font-size: 1.1em;
+            margin-bottom: 15px;
+        }
+
+        .question {
+            font-size: 1.4em;
+            font-weight: bold;
+            color: #2d6b5c;
+            margin-bottom: 30px;
+            line-height: 1.3;
+        }
+
+        .options {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .option {
+            background: #f8f9fa;
+            border: 2px solid #e9ecef;
+            border-radius: 12px;
+            padding: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 1.1em;
+            display: flex;
+            align-items: center;
+        }
+
+        .option:hover {
+            background: #e8f5e8;
+            border-color: #8fd14e;
+            transform: translateY(-2px);
+        }
+
+        .option.selected {
+            background: #e8f5e8;
+            border-color: #2d6b5c;
+            color: #2d6b5c;
+            font-weight: bold;
+        }
+
+        .option-letter {
+            background: #2d6b5c;
+            color: white;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            margin-right: 15px;
+            font-size: 0.9em;
+        }
+
+        .option.selected .option-letter {
+            background: #8fd14e;
+        }
+
+        .navigation {
+            padding: 20px 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: #f8f9fa;
+            border-top: 1px solid #e9ecef;
+        }
+
+        .btn {
+            background: #2d6b5c;
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 25px;
+            font-size: 1.1em;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: bold;
+        }
+
+        .btn:hover:not(:disabled) {
+            background: #1e4a3e;
+            transform: translateY(-2px);
+        }
+
+        .btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .btn-next {
+            background: #8fd14e;
+        }
+
+        .btn-next:hover:not(:disabled) {
+            background: #7bc142;
+        }
+
+        .results {
+            display: none;
+            padding: 40px;
+            text-align: center;
+        }
+
+        .results.active {
+            display: block;
+        }
+
+        .result-icon {
+            font-size: 4em;
+            margin-bottom: 20px;
+        }
+
+        .result-title {
+            font-size: 2.2em;
+            color: #2d6b5c;
+            margin-bottom: 15px;
+            font-weight: bold;
+        }
+
+        .result-subtitle {
+            font-size: 1.3em;
+            color: #666;
+            margin-bottom: 30px;
+        }
+
+        .result-details {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 30px;
+            margin-bottom: 30px;
+            text-align: left;
+        }
+
+        .result-details h3 {
+            color: #2d6b5c;
+            margin-bottom: 15px;
+            font-size: 1.3em;
+        }
+
+        .result-details ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        .result-details li {
+            padding: 8px 0;
+            border-bottom: 1px solid #e9ecef;
+        }
+
+        .result-details li:before {
+            content: "✅ ";
+            color: #8fd14e;
+            font-weight: bold;
+        }
+
+        .cta-section {
+            background: linear-gradient(135deg, #2d6b5c 0%, #4a9f8a 100%);
+            color: white;
+            padding: 30px;
+            border-radius: 15px;
+            margin-top: 20px;
+        }
+
+        .cta-section h3 {
+            margin-bottom: 15px;
+            font-size: 1.4em;
+        }
+
+        .cta-section p {
+            margin-bottom: 20px;
+            opacity: 0.9;
+        }
+
+        .cta-button {
+            background: #8fd14e;
+            color: #2d6b5c;
+            padding: 15px 40px;
+            border: none;
+            border-radius: 25px;
+            font-size: 1.2em;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .cta-button:hover {
+            background: #7bc142;
+            transform: translateY(-2px);
+        }
+
+        .form-container {
+            max-width: 500px;
+            margin: 0 auto;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+            color: #2d6b5c;
+            font-size: 1.1em;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #e9ecef;
+            border-radius: 10px;
+            font-size: 1.1em;
+            transition: all 0.3s ease;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: #2d6b5c;
+            box-shadow: 0 0 0 3px rgba(45, 107, 92, 0.1);
+        }
+
+        .form-group input:valid {
+            border-color: #8fd14e;
+        }
+
+        .privacy-notice {
+            background: #f0f8f0;
+            padding: 15px;
+            border-radius: 10px;
+            margin-top: 20px;
+            border-left: 4px solid #8fd14e;
+        }
+
+        .privacy-notice p {
+            margin: 0;
+            font-size: 0.9em;
+            color: #666;
+        }
+            .quiz-container {
+                margin: 10px;
+            }
+            
+            .header {
+                padding: 20px;
+            }
+            
+            .header h1 {
+                font-size: 1.8em;
+            }
+            
+            .question-container {
+                padding: 30px 20px;
+            }
+            
+            .question {
+                font-size: 1.2em;
+            }
+            
+            .option {
+                padding: 15px;
+                font-size: 1em;
+            }
+            
+            .navigation {
+                padding: 15px 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="quiz-container">
+        <div class="header">
+            <div class="logo">🎓 TECMILENIO</div>
+            <h1>🎯 ENCUENTRA TU MAESTRÍA PERFECTA</h1>
+            <p>5 preguntas simples = Tu programa ideal + Apoyo especial</p>
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressFill"></div>
+            </div>
+        </div>
+
+        <!-- Formulario de datos -->
+        <div class="question-container active" id="dataForm">
+            <div class="question-number">Antes de comenzar...</div>
+            <div class="question">📋 Déjanos tus datos para personalizar tu experiencia</div>
+            <div class="form-container">
+                <div class="form-group">
+                    <label>Nombre completo *</label>
+                    <input type="text" id="fullName" placeholder="Ej: María González López" required>
+                </div>
+                <div class="form-group">
+                    <label>Teléfono *</label>
+                    <input type="tel" id="phone" placeholder="Ej: 55 1234 5678" required>
+                </div>
+                <div class="form-group">
+                    <label>Correo electrónico *</label>
+                    <input type="email" id="email" placeholder="Ej: maria@email.com" required>
+                </div>
+                <div class="form-group">
+                    <label>Promedio de licenciatura *</label>
+                    <input type="number" id="gpa" min="6" max="10" step="0.1" placeholder="Ej: 8.5" required>
+                </div>
+                <div class="form-group">
+                    <label>Empresa donde trabajas *</label>
+                    <input type="text" id="company" placeholder="Ej: Grupo Bimbo" required>
+                </div>
+                <div class="privacy-notice">
+                    <p>🔒 Tus datos están protegidos y solo se usarán para brindarte información académica personalizada.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Pregunta 1 -->
+        <div class="question-container" id="question1">
+            <div class="question-number">Pregunta 1 de 5</div>
+            <div class="question">¿En qué área trabajas actualmente?</div>
+            <div class="options">
+                <div class="option" data-answer="A">
+                    <div class="option-letter">A</div>
+                    <div>Ventas, Marketing o Comunicación</div>
+                </div>
+                <div class="option" data-answer="B">
+                    <div class="option-letter">B</div>
+                    <div>Finanzas, Contabilidad o Banca</div>
+                </div>
+                <div class="option" data-answer="C">
+                    <div class="option-letter">C</div>
+                    <div>Operaciones, Producción o Manufactura</div>
+                </div>
+                <div class="option" data-answer="D">
+                    <div class="option-letter">D</div>
+                    <div>Sistemas, IT o Tecnología</div>
+                </div>
+                <div class="option" data-answer="E">
+                    <div class="option-letter">E</div>
+                    <div>Recursos Humanos o Administración de Personal</div>
+                </div>
+                <div class="option" data-answer="F">
+                    <div class="option-letter">F</div>
+                    <div>Logística, Distribución o Cadena de Suministro</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Pregunta 2 -->
+        <div class="question-container" id="question2">
+            <div class="question-number">Pregunta 2 de 5</div>
+            <div class="question">¿Cuál es tu mayor reto profesional actual?</div>
+            <div class="options">
+                <div class="option" data-answer="A">
+                    <div class="option-letter">A</div>
+                    <div>Generar más ventas y posicionar mejor mi marca</div>
+                </div>
+                <div class="option" data-answer="B">
+                    <div class="option-letter">B</div>
+                    <div>Tomar mejores decisiones financieras y de inversión</div>
+                </div>
+                <div class="option" data-answer="C">
+                    <div class="option-letter">C</div>
+                    <div>Mejorar procesos y aumentar la productividad</div>
+                </div>
+                <div class="option" data-answer="D">
+                    <div class="option-letter">D</div>
+                    <div>Liderar proyectos tecnológicos y digitales</div>
+                </div>
+                <div class="option" data-answer="E">
+                    <div class="option-letter">E</div>
+                    <div>Motivar equipos y retener talento</div>
+                </div>
+                <div class="option" data-answer="F">
+                    <div class="option-letter">F</div>
+                    <div>Optimizar costos y tiempos de entrega</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Pregunta 3 -->
+        <div class="question-container" id="question3">
+            <div class="question-number">Pregunta 3 de 5</div>
+            <div class="question">¿Qué te emociona más en tu trabajo?</div>
+            <div class="options">
+                <div class="option" data-answer="A">
+                    <div class="option-letter">A</div>
+                    <div>Crear campañas que conecten con las personas</div>
+                </div>
+                <div class="option" data-answer="B">
+                    <div class="option-letter">B</div>
+                    <div>Analizar números y encontrar oportunidades</div>
+                </div>
+                <div class="option" data-answer="C">
+                    <div class="option-letter">C</div>
+                    <div>Resolver problemas y mejorar resultados</div>
+                </div>
+                <div class="option" data-answer="D">
+                    <div class="option-letter">D</div>
+                    <div>Implementar nuevas tecnologías</div>
+                </div>
+                <div class="option" data-answer="E">
+                    <div class="option-letter">E</div>
+                    <div>Desarrollar el potencial de las personas</div>
+                </div>
+                <div class="option" data-answer="F">
+                    <div class="option-letter">F</div>
+                    <div>Coordinar operaciones complejas</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Pregunta 4 -->
+        <div class="question-container" id="question4">
+            <div class="question-number">Pregunta 4 de 5</div>
+            <div class="question">¿Cuál sería tu trabajo ideal?</div>
+            <div class="options">
+                <div class="option" data-answer="A">
+                    <div class="option-letter">A</div>
+                    <div>Director de Marketing o Gerente Comercial</div>
+                </div>
+                <div class="option" data-answer="B">
+                    <div class="option-letter">B</div>
+                    <div>Director Financiero o Consultor en Inversiones</div>
+                </div>
+                <div class="option" data-answer="C">
+                    <div class="option-letter">C</div>
+                    <div>Gerente de Operaciones o Director de Calidad</div>
+                </div>
+                <div class="option" data-answer="D">
+                    <div class="option-letter">D</div>
+                    <div>CTO o Gerente de Transformación Digital</div>
+                </div>
+                <div class="option" data-answer="E">
+                    <div class="option-letter">E</div>
+                    <div>Director de Recursos Humanos</div>
+                </div>
+                <div class="option" data-answer="F">
+                    <div class="option-letter">F</div>
+                    <div>Gerente de Logística o Director de Operaciones</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Pregunta 5 -->
+        <div class="question-container" id="question5">
+            <div class="question-number">Pregunta 5 de 5</div>
+            <div class="question">¿Qué tipo de empresa te gustaría liderar?</div>
+            <div class="options">
+                <div class="option" data-answer="A">
+                    <div class="option-letter">A</div>
+                    <div>Agencia de marketing o empresa de retail</div>
+                </div>
+                <div class="option" data-answer="B">
+                    <div class="option-letter">B</div>
+                    <div>Institución financiera o consultora</div>
+                </div>
+                <div class="option" data-answer="C">
+                    <div class="option-letter">C</div>
+                    <div>Empresa manufacturera o de servicios</div>
+                </div>
+                <div class="option" data-answer="D">
+                    <div class="option-letter">D</div>
+                    <div>Startup tecnológica o empresa digital</div>
+                </div>
+                <div class="option" data-answer="E">
+                    <div class="option-letter">E</div>
+                    <div>Cualquier empresa con gran equipo humano</div>
+                </div>
+                <div class="option" data-answer="F">
+                    <div class="option-letter">F</div>
+                    <div>Empresa distribuidora o de comercio exterior</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Resultados -->
+        <div class="results" id="results">
+            <div class="result-icon" id="resultIcon">🎯</div>
+            <div class="result-title" id="resultTitle">Tu Resultado</div>
+            <div class="result-subtitle" id="resultSubtitle">Programa recomendado</div>
+            <div class="result-details" id="resultDetails">
+                <!-- Contenido dinámico -->
+            </div>
+            <div class="cta-section">
+                <h3>🎁 ¡Reclama tu Apoyo Especial!</h3>
+                <p>Tienes acceso a beneficio especial en colegiatura, llamada personalizada con asesor académico e información exclusiva sobre becas.</p>
+                <p><strong>Tu información ya está lista para ser enviada automáticamente.</strong></p>
+                <button class="cta-button">
+                    📲 Contactar por WhatsApp
+                </button>
+            </div>
+        </div>
+
+        <div class="navigation">
+            <button class="btn" id="prevBtn" onclick="previousQuestion()" style="display: none;">◀ Anterior</button>
+            <div></div>
+            <button class="btn btn-next" id="nextBtn" onclick="nextQuestion()">Comenzar Quiz 🎯</button>
+        </div>
+    </div>
+
+    <script>
+        let currentQuestion = 0; // Cambiar a 0 para empezar con el formulario
+        const totalQuestions = 5;
+        let answers = {};
+        let userData = {};
+        
+        // Datos de los resultados
+        const results = {
+            A: {
+                icon: "🚀",
+                title: "EXPERTO EN MERCADOTECNIA DIGITAL",
+                subtitle: "Maestría en Mercadotecnia Digital • MBA con Área en Mercadotecnia",
+                details: {
+                    "Certificaciones incluidas GRATIS": [
+                        "Estrategias de mercadotecnia en nuevos medios",
+                        "Marketing en Redes Sociales",
+                        "Google Analytics y Google Ads",
+                        "SEO/SEM Avanzado"
+                    ],
+                    "Impacto en tu carrera": [
+                        "Incremento salarial: 40-55%",
+                        "Puestos: Director de Marketing Digital, CMO",
+                        "Industrias: E-commerce, Agencias, Retail"
+                    ],
+                    "Formatos disponibles": ["Online", "Connect"]
+                }
+            },
+            B: {
+                icon: "💰",
+                title: "EXPERTO FINANCIERO",
+                subtitle: "Maestría en Finanzas • MBA con Área en Finanzas",
+                details: {
+                    "Certificaciones incluidas GRATIS": [
+                        "Finanzas Corporativas",
+                        "Análisis de Inversiones",
+                        "Valuación de Empresas",
+                        "Gestión de Riesgos"
+                    ],
+                    "Impacto en tu carrera": [
+                        "Incremento salarial: 45-60%",
+                        "Puestos: CFO, Director Financiero, Consultor",
+                        "Industrias: Banca, Consultoría, Corporativos"
+                    ],
+                    "Formatos disponibles": ["Online", "Connect"]
+                }
+            },
+            C: {
+                icon: "⚙️",
+                title: "EXPERTO EN CALIDAD Y PRODUCTIVIDAD",
+                subtitle: "MBA Área Calidad y Productividad",
+                details: {
+                    "Certificaciones incluidas GRATIS": [
+                        "Six Sigma Green Belt",
+                        "Lean Manufacturing",
+                        "Gestión de Calidad Total",
+                        "Mejora Continua"
+                    ],
+                    "Impacto en tu carrera": [
+                        "Incremento salarial: 50-65%",
+                        "Puestos: Gerente de Operaciones, Director de Calidad",
+                        "Industrias: Manufactura, Servicios, Automotriz"
+                    ],
+                    "Formatos disponibles": ["Online", "Connect"]
+                }
+            },
+            D: {
+                icon: "💻",
+                title: "EXPERTO EN TECNOLOGÍA",
+                subtitle: "Maestría en Gestión de TI • Máster en IA • Máster en Automatización",
+                details: {
+                    "Certificaciones incluidas GRATIS": [
+                        "Gestión de Proyectos IT",
+                        "Transformación Digital",
+                        "Ciberseguridad",
+                        "Cloud Computing",
+                        "Machine Learning"
+                    ],
+                    "Impacto en tu carrera": [
+                        "Incremento salarial: 55-70%",
+                        "Puestos: CTO, Gerente de IT, Director de Tecnología",
+                        "Industrias: Tech, Fintech, Consultoría"
+                    ],
+                    "Formatos disponibles": ["Online", "Connect"]
+                }
+            },
+            E: {
+                icon: "👥",
+                title: "EXPERTO EN CAPITAL HUMANO",
+                subtitle: "Maestría en Dirección del Capital Humano • MBA con Área en RH",
+                details: {
+                    "Certificaciones incluidas GRATIS": [
+                        "People Analytics",
+                        "Gestión del Talento",
+                        "Liderazgo Organizacional",
+                        "Desarrollo Humano"
+                    ],
+                    "Impacto en tu carrera": [
+                        "Incremento salarial: 35-50%",
+                        "Puestos: Director de RH, Head of People",
+                        "Industrias: Corporativos, Consultorías, Startups"
+                    ],
+                    "Formatos disponibles": ["Online", "Connect"]
+                }
+            },
+            F: {
+                icon: "📦",
+                title: "EXPERTO EN LOGÍSTICA",
+                subtitle: "MBA Área Logística",
+                details: {
+                    "Certificaciones incluidas GRATIS": [
+                        "Supply Chain Management",
+                        "Comercio Internacional",
+                        "Gestión de Inventarios",
+                        "Distribución y Transporte"
+                    ],
+                    "Impacto en tu carrera": [
+                        "Incremento salarial: 40-55%",
+                        "Puestos: Director de Logística, Gerente de Supply Chain",
+                        "Industrias: Retail, E-commerce, Manufactura"
+                    ],
+                    "Formatos disponibles": ["Online", "Connect"]
+                }
+            }
+        };
+
+        // Función para validar el formulario
+        function validateForm() {
+            const fullName = document.getElementById('fullName').value.trim();
+            const phone = document.getElementById('phone').value.trim();
+            const email = document.getElementById('email').value.trim();
+            const gpa = document.getElementById('gpa').value.trim();
+            const company = document.getElementById('company').value.trim();
+            
+            // Validaciones básicas
+            if (!fullName || fullName.length < 2) {
+                alert('Por favor ingresa tu nombre completo');
+                return false;
+            }
+            
+            if (!phone || phone.length < 10) {
+                alert('Por favor ingresa un teléfono válido');
+                return false;
+            }
+            
+            if (!email || !email.includes('@')) {
+                alert('Por favor ingresa un email válido');
+                return false;
+            }
+            
+            if (!gpa || gpa < 6 || gpa > 10) {
+                alert('Por favor ingresa un promedio válido (6.0 - 10.0)');
+                return false;
+            }
+            
+            if (!company || company.length < 2) {
+                alert('Por favor ingresa el nombre de tu empresa');
+                return false;
+            }
+            
+            // Guardar datos del usuario
+            userData = {
+                fullName: fullName,
+                phone: phone,
+                email: email,
+                gpa: parseFloat(gpa),
+                company: company
+            };
+            
+            return true;
+        }
+
+        // Función para manejar la selección de opciones
+        function handleOptionClick(event) {
+            const questionContainer = event.target.closest('.question-container');
+            const options = questionContainer.querySelectorAll('.option');
+            const clickedOption = event.target.closest('.option');
+            
+            // Remover selección anterior
+            options.forEach(option => option.classList.remove('selected'));
+            
+            // Seleccionar nueva opción
+            clickedOption.classList.add('selected');
+            
+            // Guardar respuesta
+            answers[currentQuestion] = clickedOption.getAttribute('data-answer');
+            
+            // Habilitar botón siguiente
+            document.getElementById('nextBtn').disabled = false;
+        }
+
+        // Función para ir a la siguiente pregunta
+        function nextQuestion() {
+            // Si estamos en el formulario (currentQuestion = 0)
+            if (currentQuestion === 0) {
+                if (!validateForm()) {
+                    return;
+                }
+                
+                // Ocultar formulario
+                document.getElementById('dataForm').classList.remove('active');
+                
+                // Mostrar primera pregunta
+                currentQuestion = 1;
+                document.getElementById('question' + currentQuestion).classList.add('active');
+                
+                // Actualizar botones
+                document.getElementById('prevBtn').style.display = 'block';
+                document.getElementById('nextBtn').disabled = true;
+                
+                // Actualizar progreso
+                updateProgress();
+                
+                return;
+            }
+            
+            if (currentQuestion < totalQuestions) {
+                // Ocultar pregunta actual
+                document.getElementById('question' + currentQuestion).classList.remove('active');
+                
+                // Mostrar siguiente pregunta
+                currentQuestion++;
+                document.getElementById('question' + currentQuestion).classList.add('active');
+                
+                // Actualizar botones
+                document.getElementById('prevBtn').style.display = 'block';
+                document.getElementById('nextBtn').disabled = !answers[currentQuestion];
+                
+                // Actualizar progreso
+                updateProgress();
+                
+                // Si es la última pregunta, cambiar texto del botón
+                if (currentQuestion === totalQuestions) {
+                    document.getElementById('nextBtn').textContent = 'Ver Resultados 🎯';
+                } else {
+                    document.getElementById('nextBtn').textContent = 'Siguiente ▶';
+                }
+            } else {
+                // Mostrar resultados
+                showResults();
+            }
+        }
+
+        // Función para ir a la pregunta anterior
+        function previousQuestion() {
+            if (currentQuestion > 1) {
+                // Ocultar pregunta actual
+                document.getElementById('question' + currentQuestion).classList.remove('active');
+                
+                // Mostrar pregunta anterior
+                currentQuestion--;
+                document.getElementById('question' + currentQuestion).classList.add('active');
+                
+                // Actualizar botones
+                if (currentQuestion === 1) {
+                    document.getElementById('prevBtn').style.display = 'none';
+                }
+                document.getElementById('nextBtn').disabled = !answers[currentQuestion];
+                document.getElementById('nextBtn').textContent = 'Siguiente ▶';
+                
+                // Actualizar progreso
+                updateProgress();
+            } else if (currentQuestion === 1) {
+                // Volver al formulario
+                document.getElementById('question1').classList.remove('active');
+                document.getElementById('dataForm').classList.add('active');
+                currentQuestion = 0;
+                
+                // Actualizar botones
+                document.getElementById('prevBtn').style.display = 'none';
+                document.getElementById('nextBtn').disabled = false;
+                document.getElementById('nextBtn').textContent = 'Comenzar Quiz 🎯';
+                
+                // Actualizar progreso
+                updateProgress();
+            }
+        }
+
+        // Función para actualizar la barra de progreso
+        function updateProgress() {
+            const progress = (currentQuestion / totalQuestions) * 100;
+            document.getElementById('progressFill').style.width = progress + '%';
+        }
+
+        // Función para mostrar resultados
+        function showResults() {
+            // Ocultar pregunta actual
+            document.getElementById('question' + currentQuestion).classList.remove('active');
+            
+            // Calcular resultado
+            const resultType = calculateResult();
+            const result = results[resultType];
+            
+            // Enviar datos a Google Sheets
+            sendToGoogleSheets(userData, result);
+            
+            // Mostrar resultado
+            displayResult(resultType);
+            
+            // Mostrar sección de resultados
+            document.getElementById('results').classList.add('active');
+            
+            // Ocultar navegación
+            document.querySelector('.navigation').style.display = 'none';
+            
+            // Progreso completo
+            document.getElementById('progressFill').style.width = '100%';
+        }
+
+        // Función para calcular el resultado
+        function calculateResult() {
+            const counts = { A: 0, B: 0, C: 0, D: 0, E: 0, F: 0 };
+            
+            Object.values(answers).forEach(answer => {
+                counts[answer]++;
+            });
+            
+            // Encontrar la respuesta con más ocurrencias
+            let maxCount = 0;
+            let result = 'A';
+            
+            for (const [letter, count] of Object.entries(counts)) {
+                if (count > maxCount) {
+                    maxCount = count;
+                    result = letter;
+                }
+            }
+            
+            return result;
+        }
+
+        // Función para enviar datos a Google Sheets
+        async function sendToGoogleSheets(userData, result) {
+            const params = new URLSearchParams();
+            params.append('timestamp', new Date().toLocaleString('es-MX'));
+            params.append('fullName', userData.fullName);
+            params.append('phone', userData.phone);
+            params.append('email', userData.email);
+            params.append('gpa', userData.gpa);
+            params.append('company', userData.company);
+            params.append('result', result.title);
+            params.append('resultType', result.subtitle);
+            
+            const url = 'https://script.google.com/macros/s/AKfycbyeODcA1mRook5ZQQ7Jckc-yocgHQ9zJ6q2tfhDvY3_PoG8tYQFTzT0B_eU0bde99_5/exec?' + params.toString();
+            
+            try {
+                // Método principal usando Image (más confiable para este caso)
+                const img = new Image();
+                img.src = url;
+                console.log('✅ Datos enviados correctamente a Google Sheets');
+            } catch (error) {
+                console.log('⚠️ Error al enviar datos, pero esto es normal en algunos navegadores');
+            }
+        }
+
+        // Función para mostrar el resultado
+        function displayResult(resultType) {
+            const result = results[resultType];
+            
+            document.getElementById('resultIcon').textContent = result.icon;
+            document.getElementById('resultTitle').textContent = `¡Hola ${userData.fullName}! Tu resultado es:`;
+            document.getElementById('resultSubtitle').textContent = result.title;
+            
+            // Crear contenido detallado
+            let detailsHTML = `
+                <div style="background: #e8f5e8; padding: 20px; border-radius: 10px; margin-bottom: 20px;">
+                    <h3 style="color: #2d6b5c; margin-bottom: 10px;">📊 Tu Perfil Académico:</h3>
+                    <p><strong>Empresa:</strong> ${userData.company}</p>
+                    <p><strong>Promedio:</strong> ${userData.gpa}/10</p>
+                    <p><strong>Email:</strong> ${userData.email}</p>
+                </div>
+                <h3 style="color: #2d6b5c; margin-bottom: 15px;">🎯 Programa Recomendado:</h3>
+                <p style="font-size: 1.2em; margin-bottom: 20px;"><strong>${result.subtitle}</strong></p>
+            `;
+            
+            for (const [category, items] of Object.entries(result.details)) {
+                detailsHTML += `<h3>${category}:</h3><ul>`;
+                items.forEach(item => {
+                    detailsHTML += `<li>${item}</li>`;
+                });
+                detailsHTML += `</ul>`;
+            }
+            
+            document.getElementById('resultDetails').innerHTML = detailsHTML;
+            
+            // Personalizar mensaje de WhatsApp
+            const whatsappMessage = `¡Hola! Soy *${userData.fullName}*. Completé el test de Tecmilenio y mi resultado fue: *${result.title}*. ¿Podrías darme información sobre el descuento y el proceso de admisión?`;
+            
+            const whatsappButton = document.querySelector('.cta-button');
+            whatsappButton.onclick = function() {
+                window.open(`https://wa.me/5511958790?text=${encodeURIComponent(whatsappMessage)}`, '_blank');
+            };
+        }
+
+        // Agregar event listeners a todas las opciones
+        document.addEventListener('DOMContentLoaded', function() {
+            const options = document.querySelectorAll('.option');
+            options.forEach(option => {
+                option.addEventListener('click', handleOptionClick);
+            });
+            
+            // Inicializar progreso
+            updateProgress();
+        });
+    </script>
+</body>
+</html>
